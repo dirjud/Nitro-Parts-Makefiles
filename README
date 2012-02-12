@@ -1,0 +1,145 @@
+This git repo stores a collection of nitro parts and their associated
+xml, python, firmware, rtl, etc. as a collection of submodules. This
+top level repo is intended to be as lean as possible so that the
+collection of parts can remain custom without worrying about drift
+between collections.
+
+-----------------------------------
+Creating a Collection
+-----------------------------------
+To create a collection of parts, simply create a new git repo:
+git --init
+
+Then add the Makefiles submodule:
+git submodule add git://github.com/dirjud/Nitro-Parts-Makefiles.git src/lib/Makefiles
+
+Now create a link to this README file:
+ln -s src/lib/Makefiles/README .
+
+git add README
+git commit -m "Initial Revision"
+
+Now you can start adding additional parts as submodules.
+
+--------------------------------------
+Updating
+--------------------------------------
+Running 'make update' will fetch all the submodules and build the
+appropriate directory of xml files and python packages.
+
+If you plan on developing on any of the nitro parts, then you may
+want to 'make pull' after you 'make update' have git checkout the
+master branch for you of all the nitro parts.
+
+'make status' will tell you that status of all the submodules so
+that you can tell if you need to commit any submodules.
+
+'make xml' will rebuild the xml files.
+'make py' will rebuld the python library.
+
+-----------------------------------
+Adding a new part
+-----------------------------------
+
+Suppose you want to add a part manufactered by BrooksEE with part number
+Example.  Here are the steps you take to get it into the repo as a
+submodule:
+
+
+- Create the empty shared repo on the server:
+
+  cd /pub/git/prj/nitro_parts_submodules/BrooksEE
+  mkdir Example
+  cd Example
+  git --bare init --shared
+
+- Create a new git repo in the nitro_parts/src directory. 
+  
+  cd ~/prj/nitro_parts
+  mkdir src/BrooksEE/Example
+  cd src/BrooksEE/Example
+  git init
+  
+- Add some files to the repo.
+  
+  git add file1
+  git commit -m "initial reivision"
+
+
+- Push your local repo to the shared repo:
+
+  git remote add origin ubigit:/pub/git/prj/nitro_parts_submodules/BrooksEE/Example
+  git push origin master:master
+
+
+- Create the submodule:
+  
+  cd ~/prj/nitro_parts
+  git submodule add ubigit:/pub/git/prj/nitro_parts_submodules/BrooksEE/Example src/BrooksEE/Example
+  git add .gitmodules
+  git commit -m "Added BrooksEE/Example submodule"
+
+
+- Conventions:
+  
+  DI file:
+  Every part that has a di file needs have a file in the top called <part_num>.xml.
+  So for the above example, you need to create a nitro_parts/src/BrooksEE/Example/Example.xml
+  file. That file can be generated, and if it is, you need to create a Makefile in the
+  top directory with a target to build the xml file. You need to follow this convention
+  to have 'make xml' from the nitro_parts directory correctly export your xml file into
+  the correct place.
+
+
+  Python Code:
+  Python code in your submodule should be put in the py/<part_num> directory. You
+  should create an __init__.py file there.  Then users can import your module
+  as:
+  
+  from nitro_parts.BrooksEE import Example
+
+  See instructions below for how to setup your python and di library paths.
+
+- To get your xml and python exported correctly, from the nitro_parts directory run:
+  
+  make xml
+  make py
+
+ 
+
+
+----------------------------------
+DI files (Device Interface files)
+----------------------------------
+The DI (or xml) files associated with each part are collected into
+a single directory structure when you run 'make update'. This allows
+you to access the DI files from any project, no matter whether it is 
+on Unix or Windows, C++, verilog, or python, C#, etc.
+
+The DI files get put in the 'parts' directory. You can change the
+'XML_PATH' environment variable to change that. The nitro API has a
+static function called load_di(<xml_filename>) that you can use to
+easily access this collection. Simply set your 'NITRO_DI_PATH'
+environment variable to 'parts' and then you can call
+load_di("BrooksEE/UXN2555.xml"), for example. 
+
+
+---------------
+PYTHON
+---------------
+
+After running 'make update', you will have a python package called
+'nitro_parts' in the 'py' directory. You can add the 'py' directory to
+your 'PYTHONPATH' environment variable or run 'make install' to install
+the python packages site wide. Then you can use the parts as in this
+example:
+
+from nitro_parts.BrooksEE import UXN2555
+import nitro
+di = nitro.get_di("BrooksEE/UXN2555.xml")
+
+You will need to either set your 'NITRO_DI_PATH' to point to the
+'parts' directory or to your '/usr/share/nitro/parts' path if you ran
+'make install'
+
+

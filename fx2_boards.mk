@@ -16,7 +16,7 @@ FX2_FIRMWARE = $(FX2_FIRMWARE_DIR)/build/firmware.ihx
 all:
 	echo You must specify a target: e.g. make fx2, make $(PID)
 
-# converts a new Cypress board or the first ubixum device to this PID
+# converts a new Cypress board or the first $VID device to this PID
 $(PID):
 	nitro -R $(FX2_FIRMWARE) -V 04b4 -P 8613 || nitro -R $(FX2_FIRMWARE) -V $(VID) -P "*"
 
@@ -46,4 +46,4 @@ shell:
 	    echo "logging.basicConfig(level=logging.INFO)" >> start.py; \
 	    echo 'dev = self = $(PY_CLASS).get_dev()' >> start.py; \
 	fi
-	ipython start.py
+	ipython -i start.py
