@@ -67,28 +67,29 @@ clean:
         done 
 	git submodule foreach 'make clean || :'
 
-ver ?= $(shell python -c "words=open('nitro_parts.spec','r').read().split(); print words[words.index('Version:')+1]")
+#ver ?= $(shell python -c "import os, commands; words=open('nitro_parts.spec','r').read().split(); print words[words.index('Version:')+1] except: import commands; commands.getoutput('git rev-parse HEAD')[:10]')")
+
+ver ?= $(shell python -c "`printf "import os, commands\nif os.path.exists('nitro_parts.spec'): words=open('nitro_parts.spec','r').read().split(); print words[words.index('Version:')+1]\nelse: print 'git' + commands.getoutput('git rev-parse HEAD')[:6]"`")
+
 archive: 
 # create an archive of the built xml files and python files for rpm
 # use 'make archive ver=xxx' for a specific version
+#	$(MAKE) py
+#	$(MAKE) xml
+#	$(MAKE) xml
+#	$(MAKE) xml
+#	$(MAKE) xml
 	gtar -chzf nitro_parts-$(ver).tgz --transform "s,^,/nitro_parts-$(ver)/," py parts
 
-tar:
-	rm -rf nitro_parts
-	mkdir nitro_parts
-	ln -s ../py nitro_parts/
-	ln -s ../parts nitro_parts/
-	ln -s ../Makefile nitro_parts/
-	tar -cjvh --exclude="*~" --exclude="*.pyc" -f nitro_parts.tar.bz2 nitro_parts
 
-install:
-	cp -r py/nitro_parts `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`/
-	chmod -R 755 `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`/nitro_parts
-	cp -r parts /usr/share/nitro_parts
-	chmod -R 755 /usr/share/nitro_parts
-	echo "Remeber to set NITRO_DI_PATH environment variable to /usr/share/nitro_parts"
-	echo " e.g. $ export NITRO_DI_PATH=/usr/share/nitro_parts"
-
-uninstall:
-	rm -rf 	`python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`/nitro_parts
-	rm -rf /usr/share/nitro_parts
+#install:
+#	cp -r py/nitro_parts `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`/
+#	chmod -R 755 `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`/nitro_parts
+#	cp -r parts /usr/share/nitro_parts
+#	chmod -R 755 /usr/share/nitro_parts
+#	echo "Remeber to set NITRO_DI_PATH environment variable to /usr/share/nitro_parts"
+#	echo " e.g. $ export NITRO_DI_PATH=/usr/share/nitro_parts"
+#
+#uninstall:
+#	rm -rf 	`python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`/nitro_parts
+#	rm -rf /usr/share/nitro_parts
