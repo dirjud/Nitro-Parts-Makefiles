@@ -5,6 +5,17 @@ collection of parts can remain custom without worrying about drift
 between collections.
 
 -----------------------------------
+First Time Checkout
+-----------------------------------
+After checking out a nitro collection for the first time, you will
+need to run 'make first' to populate the Makefile directory, which
+is a submodule. From there you can run the 'make pull' command as
+outlined below.
+
+You will also want to run 'source env.sh' to setup your paths
+correctly.
+
+-----------------------------------
 Creating a Collection
 -----------------------------------
 To create a collection of parts, simply create a new git repo:
