@@ -2,7 +2,7 @@
 # variables:
 # VID=
 # PID=
-# FX2_FIRMWARE_DIR=
+# FX3_FIRMWARE_DIR=
 # SPI_FILE=
 
 VID ?= 0x1fe1
@@ -19,15 +19,15 @@ include ../../../lib/Makefiles/fx2_boards.mk
 $(PID):
 	nitro -R $(FX3_FIRMWARE) -V 04b4 -P 00f3 || nitro -R $(FX3_FIRMWARE) -V $(VID) -P "*"
 
-# programs the fx2 and fx2 prom
+# programs the fx3 and fx3 prom
 fx3:
 	make -C $(FX3_FIRMWARE_DIR)
 	python -c 'from nitro_parts.Microchip import M24XX; \
-from nitro_parts.Cypress import CY7C68013; \
+from nitro_parts.Cypress import FX3; \
 import logging; \
 logging.basicConfig(level=logging.INFO); \
 dev=CY7C68013.get_dev(VID=$(VID), PID=$(PID)); \
-M24XX.program_fx2_prom(dev, "$(FX2_FIRMWARE)", VID=$(VID), PID=$(PID)); \
-CY7C68013.program_fx2(dev, "$(FX2_FIRMWARE)"); \
+M24XX.program_fx3_prom(dev, "$(FX3_FIRMWARE)", VID=$(VID), PID=$(PID)); \
+FX3.program_fx3(dev, "$(FX3_FIRMWARE)"); \
 '
 
