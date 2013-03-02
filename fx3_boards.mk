@@ -5,6 +5,8 @@
 # FX3_FIRMWARE_DIR=
 # SPI_FILE=
 
+.PHONY: fx3
+
 VID ?= 0x1fe1
 #PID=
 FX3_FIRMWARE_DIR ?=../firmware
@@ -23,11 +25,10 @@ $(PID):
 fx3:
 	make -C $(FX3_FIRMWARE_DIR)
 	python -c 'from nitro_parts.Microchip import M24XX; \
-from nitro_parts.Cypress import FX3; \
+from nitro_parts.Cypress import fx3; \
 import logging; \
 logging.basicConfig(level=logging.INFO); \
-dev=CY7C68013.get_dev(VID=$(VID), PID=$(PID)); \
-M24XX.program_fx3_prom(dev, "$(FX3_FIRMWARE)", VID=$(VID), PID=$(PID)); \
-FX3.program_fx3(dev, "$(FX3_FIRMWARE)"); \
+dev=fx3.get_dev(VID=$(VID), PID=$(PID)); \
+M24XX.program_fx3_prom(dev, "$(FX3_FIRMWARE)"); \
 '
 
