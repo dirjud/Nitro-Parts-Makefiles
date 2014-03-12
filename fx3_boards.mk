@@ -8,7 +8,7 @@
 .PHONY: fx3
 
 VID ?= 0x1fe1
-#PID=
+PID ?= 0x00f3
 FX3_FIRMWARE_DIR ?=../firmware
 #SPI_FILE = ../xilinx/UXN1230.spi
 
