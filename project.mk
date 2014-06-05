@@ -5,6 +5,7 @@ NCSIM     = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/ncsim.mk
 ISE_SIM   = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/ise_sim.mk
 VERILATOR = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/verilator.mk
 IVERILOG  = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/iverilog.mk
+VSIM      = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/vsim.mk
 
 CLEANEXTS = log
 
@@ -43,6 +44,9 @@ fpgasim: fpgasim_xilinx
 
 %_iverilog:
 	$(IVERILOG) $*
+
+%_vsim:
+	$(VSIM) $*
 
 %.xml: terminals.py
 	diconv terminals.py $@
