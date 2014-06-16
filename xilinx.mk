@@ -17,6 +17,7 @@
 #   PART      - FPGA part (see Xilinx documentation)
 #   PROM      - PROM part
 #   NGC_PATHS - Space seperated list of any dirs with pre-compiled ngc files.
+#   NGD_OPTS  - additional options for ngdbuild. Some cores need special opts.
 #   UCF_FILES - Space seperated list of user constraint files. Defaults to xilinx/$(FPGA_TOP).ucf
 #   
 #
@@ -26,7 +27,7 @@
 #   PART      = xc3s1000 
 #   FPGA_TOP  = fpga
 #   PROM      = xc18v04
-#   NGC_PATH  = ipLib1 ipLib2
+#   NGC_PATHS = ipLib1 ipLib2
 #   FPGA_ARCH = spartan6 
 #   SPI_PROM_SIZE = (in bytes)
 #   include xilinx.mk
@@ -115,7 +116,7 @@ fpgasim: $(FPGA_TOP)_sim.v
 # pre-compiled ncd files are needed, set the NGC_PATH variable as a space
 # seperated list of directories that include the pre-compiled ngc files.
 %.ngd: %.ngc $(UCF_FILES_REL)
-	ngdbuild -dd ngdbuild $(patsubst %,-sd %, $(NGC_PATHS_REL)) $(patsubst %,-uc %, $(UCF_FILES_REL)) -p $(FPGA_PART) $< $@
+	ngdbuild -dd ngdbuild $(patsubst %,-sd %, $(NGC_PATHS_REL)) $(patsubst %,-uc %, $(UCF_FILES_REL)) -p $(FPGA_PART) $(NGD_OPTS) $< $@
 
 
 ###########################  ISE MAP ###################################
