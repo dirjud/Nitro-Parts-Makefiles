@@ -18,6 +18,8 @@
 #   PROM      - PROM part
 #   NGC_PATHS - Space seperated list of any dirs with pre-compiled ngc files.
 #   NGD_OPTS  - additional options for ngdbuild. Some cores need special opts.
+#   BITGEN_OPTS - additional options for bitgen.
+#   BITGET_DEPS - additional dependenies for bitget (e.g., bitgen_opts uses -bd for embedded firmware)
 #   UCF_FILES - Space seperated list of user constraint files. Defaults to xilinx/$(FPGA_TOP).ucf
 #   
 #
@@ -116,7 +118,7 @@ fpgasim: $(FPGA_TOP)_sim.v
 # pre-compiled ncd files are needed, set the NGC_PATH variable as a space
 # seperated list of directories that include the pre-compiled ngc files.
 %.ngd: %.ngc $(UCF_FILES_REL)
-	ngdbuild -dd ngdbuild $(patsubst %,-sd %, $(NGC_PATHS_REL)) $(patsubst %,-uc %, $(UCF_FILES_REL)) -p $(FPGA_PART) $(NGD_OPTS) $< $@
+	ngdbuild -dd ngdbuild $(patsubst %,-sd %, $(NGC_PATHS_REL)) $(patsubst %,-uc %, $(UCF_FILES_REL)) -p $(FPGA_PART) $< $@ $(NGD_OPTS)
 
 
 ###########################  ISE MAP ###################################
@@ -150,8 +152,8 @@ endif
 
 
 ###########################   ISE Bitgen   #############################
-%.bit: %.twr
-	bitgen -g StartupClk:Cclk -g ConfigRate:26 -w $*.ncd $*.bit
+%.bit: %.twr $(BITGEN_DEPS)
+	bitgen -g StartupClk:Cclk -g ConfigRate:26 $(BITGEN_OPTS) -w $*.ncd $*.bit
 	mkdir -p rev
 	EXT=bit; COUNT=100; \
 	while [ -e rev/$*_rev$$COUNT.$$EXT ]; \
