@@ -53,8 +53,8 @@ sim: $(SIM_TOP_MODULE).vvp
 IVERILOG=iverilog
 
 # This target verilates and builds the simulation
-$(SIM_TOP_MODULE).vvp: $(SIM_FILES_REL) $(SYN_FILES_REL) $(INC_FILES_REL) $(VERILATOR_FILES_REL)
-	$(IVERILOG) -o $@ $(SIM_FLAGS) $(SIM_FILES_REL) $(SYN_FILES_REL)
+$(SIM_TOP_MODULE).vvp: $(SIM_FILES_REL) $(SYN_FILES_REL) $(INC_FILES_REL)
+	$(IVERILOG) -o $@ $(SIM_FLAGS) $(LIB_ARGS) $(SIM_FILES_REL) $(SYN_FILES_REL)
 
 	echo Run 'vvp sim/$@' to execute your sim
 
