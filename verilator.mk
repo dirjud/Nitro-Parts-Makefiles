@@ -17,6 +17,7 @@
 #   SIM_LIBS  - Space seperated list of library paths to include for simulation
 #   SIM_DEFS  - Space seperated list of `defines that should be set for sim
 #   SIM_ARGS  - Space seperated list of args for $test$plusargs("arg") options
+#   SIM_DEPS  - Additional optional targets from other files that need made when the sim is made
 #
 # Example "../config.mk" Makefile:
 #
@@ -61,7 +62,7 @@ LIB_ARGS  = +libext+.v $(patsubst %,-y %,$(SIM_LIBS))
 
 .PHONY: lint sim
 
-sim: V$(SIM_TOP_MODULE).so
+sim: V$(SIM_TOP_MODULE).so $(SIM_DEPS)
 
 # This target copies the file to have an .so file, which is necessary
 # when making it a shared object like a python module.
@@ -70,7 +71,7 @@ V$(SIM_TOP_MODULE).so: obj_dir/V$(SIM_TOP_MODULE)
 
 # This target verilates and builds the simulation
 obj_dir/V$(SIM_TOP_MODULE): $(SIM_FILES_REL) $(SYN_FILES_REL) $(INC_FILES_REL) 
-	$(VERILATOR) -Od --trace  --cc $(SIM_FLAGS) $(LIB_ARGS) $(VERILATOR_ARGS) $(SIM_FILES_REL) $(SYN_FILES_REL) --exe $(VERILATOR_CPP_FILE)
+	$(VERILATOR) -Od -Wno-PINMISSING --trace  --cc $(SIM_FLAGS) $(LIB_ARGS) $(VERILATOR_ARGS) $(SIM_FILES_REL) $(SYN_FILES_REL) --exe $(VERILATOR_CPP_FILE)
 	make -C obj_dir -f V$(SIM_TOP_MODULE).mk V$(SIM_TOP_MODULE) \
 	USER_CPPFLAGS="$(VERILATOR_CPPFLAGS)" \
 	USER_LDFLAGS=$(VERILATOR_LDDFLAGS)
