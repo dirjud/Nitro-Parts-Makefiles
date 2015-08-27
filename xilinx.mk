@@ -21,6 +21,7 @@
 #   BITGEN_OPTS - additional options for bitgen.
 #   BITGET_DEPS - additional dependenies for bitget (e.g., bitgen_opts uses -bd for embedded firmware)
 #   UCF_FILES - Space seperated list of user constraint files. Defaults to xilinx/$(FPGA_TOP).ucf
+#   DEFS - Space separated list of defines.  If the define has a value it should be "XYZ=ABC" formated
 #   
 #
 # Example Calling Makefile:
@@ -93,7 +94,7 @@ fpgasim: $(FPGA_TOP)_sim.v
 	rm -rf xst $*.prj $*.xst defines.v
 	touch defines.v
 	mkdir -p xst/tmp
-	for x in $(DEFS); do echo '`define' $$x >> defines.v; done
+	for x in $(DEFS); do echo '`define' $$x | tr '=' ' ' >> defines.v; done
 	echo verilog work defines.v > $*.prj
 	for x in $(SYN_FILES_REL); do echo verilog work $$x >> $*.prj; done
 	@echo "set -tmpdir ./xst/tmp" >> $*.xst
