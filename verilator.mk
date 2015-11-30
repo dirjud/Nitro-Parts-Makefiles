@@ -54,10 +54,10 @@ INC_FILES_REL = $(patsubst %, ../%, $(INC_FILES))
 INC_PATHS_REL = $(patsubst %, ../%, $(INC_PATHS))
 
 
-SIM_FLAGS = $(patsubst %, +define+%, $(SIM_DEFS)) $(patsubst %, +incdir+%,$(INC_PATHS_REL)) $(VERILATOR_ARGS) 
+SIM_FLAGS = $(patsubst %, +define+%, $(SIM_DEFS) $(DEFS)) $(patsubst %, +incdir+%,$(INC_PATHS_REL)) $(VERILATOR_ARGS) 
 LIB_ARGS  = +libext+.v $(patsubst %,-y %,$(SIM_LIBS)) 
 
-#LIB_ARGS  = +libext+.v $(patsubst %,-y %,$(SIM_LIBS)) 
+#LIB_ARGS  = +libext+.v $(patsubst %,-y %,$(SIM_LIBS))
 #SIM_FLAGS = +ncaccess+rw +define+SIM $(patsubst %, +define+%, $(SIM_DEFS)) $(patsubst %, +%, $(SIM_ARGS))
 
 .PHONY: lint sim
