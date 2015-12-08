@@ -23,7 +23,7 @@ $(PID):
 
 # programs the fx3 and fx3 prom
 fx3:
-	make -C $(FX3_FIRMWARE_DIR)
+#	make -C $(FX3_FIRMWARE_DIR)
 	python -c 'from nitro_parts.Microchip import M24XX; \
 from nitro_parts.Cypress import fx3; \
 import logging; \
