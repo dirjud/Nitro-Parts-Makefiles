@@ -48,7 +48,7 @@
 # Optional Files:
 # %.xcf - user constraint file. Needed by xst.
 # %.ut - File for pin states needed by bitgen
-
+DEFS += $(SYN_DEFS)
 
 .PHONY: clean bit prom fpga spi
 
@@ -130,7 +130,7 @@ else
 endif
 
 %_map.ncd: %.ngd
-	map -p $(FPGA_PART) $(MAP_OPTS) -w -o $@ $< $*.pcf
+	map -p $(FPGA_PART) $(MAP_OPTS) -pr b -w -o $@ $< $*.pcf
 
 #	map -p $(FPGA_PART) -cm area -pr b -k 4 -c 100 -o $@ $< $*.pcf
 
