@@ -1,0 +1,19 @@
+import os
+
+rtl_auto=[]
+
+def RtlAuto(self,terminal,src='terminals.py' ):
+    rtl_dir = os.path.join(Dir('#.').path, 'rtl_auto')
+    rtl_auto.append(self.Command( 
+        [os.path.join(rtl_dir, "%sTerminal.v" % terminal ),
+         os.path.join(rtl_dir, "%sTerminalInstance.v" % terminal)
+        ],
+        src,
+        ['di -o %s -v %s %s' % ( rtl_dir, terminal, src )] )
+        )
+
+env=Environment( ENV=os.environ )
+        
+env.AddMethod(RtlAuto)
+
+Return('env')
