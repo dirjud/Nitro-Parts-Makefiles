@@ -1,16 +1,16 @@
 import os
 
-rtl_auto=[]
-
+py,parts=SConscript('../../../SConstruct')
+		
 def RtlAuto(self,terminal,src='terminals.py' ):
     rtl_dir = os.path.join(Dir('#.').path, 'rtl_auto')
-    rtl_auto.append(self.Command( 
+    rtl_auto=self.Command( 
         [os.path.join(rtl_dir, "%sTerminal.v" % terminal ),
          os.path.join(rtl_dir, "%sTerminalInstance.v" % terminal)
         ],
         src,
         ['di -o %s -v %s %s' % ( rtl_dir, terminal, src )] )
-        )
+    env.Depends(rtl_auto,parts)
 
 env=Environment( ENV=os.environ )
         
