@@ -45,13 +45,28 @@ def Py (self, prefix, glob ):
         glob )
     install_pys.append(ins)
 
+def git_update(target,source,env):
+    """
+        Function to update all submodules
+    """
+
+    for s in r.submodules:
+        sr=s.module()
+        sr.git.checkout('master')
+        sr.git.pull()
+    
+
 env=Environment( ENV= os.environ,  # propogate user environment
-                 BUILDERS = {'Diconv':diconv} 
+                 BUILDERS = {'Diconv':diconv}
                )
  
 env.AddMethod(DIDepends) 
 env.AddMethod(Xml)
 env.AddMethod(Py)
+
+p=env.Command ('pull',None,git_update )
+env.Pseudo(p)
+env.Alias('pull',p)
 
 r=git.Repo(Dir('../../..').path)
 
@@ -87,4 +102,5 @@ env.AddPostAction( root_init, PyInit )
 
 env.Default(['py','parts'])
 
+    
 Return(('py','parts'))
