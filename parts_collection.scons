@@ -52,6 +52,8 @@ def git_update(target,source,env):
         Function to update all submodules
     """
 
+    r.git.checkout('master')
+    r.git.pull()
     for s in r.submodules:
         sr=s.module()
         sr.git.checkout('master')
@@ -64,7 +66,7 @@ env=Environment( ENV= os.environ,  # propogate user environment
 
 # Ensure running this part config from other 
 # locations doesn't cause losing the build deps
-env.SConsignFile ( '../../../.sconsign.dblite' )
+env.SConsignFile ( File('../../../.sconsign.dblite').abspath )
  
 env.AddMethod(DIDepends) 
 env.AddMethod(Xml)
