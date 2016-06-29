@@ -1,4 +1,5 @@
 import os
+Import ('env')
 
 py,parts=SConscript('../../../SConstruct')
 
@@ -13,9 +14,6 @@ def RtlAuto(self,terminal,src='terminals.py' ):
         ['di -o %s -v %s %s' % ( rtl_dir, terminal, src )] )
     self.Depends(rtl_auto,parts)
     return rtl_auto
-
-env=Environment( ENV=os.environ )
         
 env.AddMethod(RtlAuto)
 
-Return('env')
