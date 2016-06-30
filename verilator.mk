@@ -39,6 +39,7 @@ VERILATOR_CPP_FILE=tb.cpp
 SIM_TOP_MODULE=pcb
 
 VERILATOR_CPPFLAGS=-I ../ -fPIC -I`python -c 'import  distutils.sysconfig; print distutils.sysconfig.get_python_inc()'` -I`python -c 'import numpy; print \"/\".join(numpy.__file__.split(\"/\")[:-1])+\"/core/include\"'` -I `python -c 'import os, nitro; print os.path.join ( os.path.split( nitro.__file__ )[0], "include" )'`
+VERILATOR_CPPFLAGS += -I../../../../lib/HostInterface/models # fx3_verilator.cpp is included
 VERILATOR_LDDFLAGS="`python -c 'import distutils.sysconfig as x; print x.get_config_var(\"LIBS\"), x.get_config_var(\"BLDLIBRARY\")'` -shared -lnitro"
 
 
