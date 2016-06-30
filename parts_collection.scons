@@ -55,10 +55,11 @@ def git_update(target,source,env):
     r.git.checkout('master')
     r.git.pull()
     for s in r.submodules:
+        print s
         sr=s.module()
-        sr.git.checkout('master')
-        sr.git.pull()
-    
+        print sr.git.checkout('master')
+	print sr.git.pull()
+    	print sr.git.submodule("update", "--init", "--recursive")
 
 env=Environment( ENV= os.environ,  # propogate user environment
                  BUILDERS = {'Diconv':diconv}
