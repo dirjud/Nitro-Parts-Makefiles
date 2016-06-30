@@ -1,5 +1,141 @@
 import os
 
-env = Environment(env=os.environ)
+Import ('env')
 
-Return('env')
+def backup_rev(target,source,env):
+    print "do backup..."
+    
+def build_ngc_prj(target,source,env):
+    #print "ngc build", target, source
+    #print "\n\nNGC stuff", env['DEFS'], env['INC_DIRS']
+    defs = open('xilinx/defines.v', 'w')
+    for d in env['DEFS']:        
+        defs.write ( '`define %s\n' % d.replace('=',' '))
+    defs.close()
+    
+    prj = open('xilinx/%s.prj' % env['TB'], 'w')
+    prj.write ( "verilog work defines.v\n" )
+    for v in source:
+        prj.write ( "verilog work %s\n" % v.abspath )
+    prj.close()
+    xst = open('xilinx/%s.xst' % env['TB'], 'w')
+    xst.write ( """
+set -xsthdpdir ./xst
+run
+-ifn %(tb)s.prj
+-ifmt mixed
+-top %(tb)s
+-ofn %(tb)s
+-ofmt NGC
+-opt_mode Speed
+-opt_level 1
+-keep_hierarchy NO
+-p %(part)s
+""" % {'tb':env['TB'],'part':env['PART']})
+    
+
+def SPI(self, TB, v_sources, 
+              defines, inc_dirs,
+              ucf_files=[],  
+              ngc_paths=[], ngd_opts='',
+              fpga_arch='spartan6',
+              fpga_part='xc6slx16-csg324-2',
+              spi_prom_size=524288, 
+              bitgen_deps=[], bitgen_opts='' ):
+    """
+        @param TB Top Block Module Name
+        @param v_sources: All verilog sources
+        @param defines: list of verilog definitions
+        @param inc_dirs: directories to include in search path
+        @param ucf_files: list of ucf file targets or paths
+        @param ngc_paths: list of paths where precompiled ngc files exist
+        @param ngd_opts: optional additional options for ngd
+        @param fpga_arch: default set to 'spartan6'
+        @param fpga_part: default set to 'xc6slx16-csg324-2'
+        @param spi_prom_size: default set to 524288
+        @param bitgen_deps: list of optional dependencies required by bitgen
+        @param bitgen_opts: optional parameters for bitgen
+    """
+    
+    ngc=self.Command( File('#xilinx/%s.ngc'%TB),
+                      v_sources,
+                      [build_ngc_prj,
+                       'cd xilinx && xst -ifn ${TB}.xst -ofn ${TB}.log'],
+                      TB=TB, DEFS=defines, INC_DIRS=inc_dirs, PART=fpga_part)
+    
+    if not len(ucf_files):
+        ucf_files=[File('#xilinx/%s.ucf'%TB)]
+
+    def flatten(l): # NOTE scons way to do this?? probably
+        for x in l:
+            if not hasattr(x,'append'):
+                p=str(x)
+                if not p.startswith('/'):
+                    p='../'+p
+                yield p
+            else:
+                for y in flatten(x):
+                    yield y
+                     
+    ngc_path_opts = ' '.join(['-sd %s' % p for p in flatten(ngc_paths)])
+    ucf_file_paths = ' '.join(['-uc %s' % p for p in flatten(ucf_files)])
+    
+    ngd=self.Command ( File('#xilinx/%s.ngd' % TB),
+                       ngc,
+                       ['cd xilinx && ngdbuild -dd ngdbuild $NGC_PATH_OPTS $UCF_FILES -p $FPGA_PART ${SOURCE.name} ${TARGET.name} $NGD_OPTS'],
+                       TB=TB, NGC_PATH_OPTS=ngc_path_opts, UCF_FILES=ucf_file_paths,
+                       FPGA_PART=fpga_part, NGD_OPTS=ngd_opts )
+    self.Depends( ngd, ucf_files )
+                           
+    
+    if fpga_arch=='spartan6':
+        map_opts = '-register_duplication on -timing -xe n'
+    else:
+        map_opts = '-cm speed -register_duplication on -timing -xe n -pr b'
+    
+    map_ncd=self.Command ( File('#xilinx/%s_map.ncd' % TB ),
+                           ngd,
+                           ['cd xilinx && map -p $FPGA_PART $MAP_OPTS -pr b -w -o ${TARGET.name} ${SOURCE.abspath} ${TB}.pcf'], 
+                           TB=TB,FPGA_PART=fpga_part,MAP_OPTS=map_opts)
+    
+    ncd=self.Command ( File('#xilinx/%s.ncd' % TB ),
+                       map_ncd,
+                       ['cd xilinx && par -w -ol high ${SOURCE.name} ${TARGET.name} ${TB}.pcf'],
+                       TB=TB )
+    
+    # TODO ignore if fail
+    twr=self.Command ( File('#xilinx/%s.twr' % TB),
+                       ncd,
+                       ['cd xilinx && trce -e 3 -l 3 -u -xml $TB ${SOURCE.name} -o ${TARGET.name} ${TB}.pcf'],
+                       TB=TB )
+    # maybe make bit depend on ncd but then
+    # make twr auto called if ncd is generated?
+    bit=self.Command ( File('#xilinx/%s.bit' % TB),
+                       twr,
+                       ['cd xilinx && bitgen -g StartupClk:Cclk -g ConfigRate:26 $BITGEN_OPTS -w ${TB}.ncd ${TARGET.name}',
+                        backup_rev],
+                       TB=TB, BITGEN_OPTS=bitgen_opts )
+    if len(bitgen_deps):
+        self.Depends(bit,bitgen_deps)              
+    
+    mcs=self.Command ( File('#xilinx/%s.mcs' % TB ),
+                       bit,
+                       ['cd xilinx && promgen -spi -w -p mcs -s $SPI_PROM_SIZE -o ${TARGET.name} -u 0 ${SOURCE.name}',
+                        backup_rev],
+                       SPI_PROM_SIZE=spi_prom_size)
+    
+    spi=self.Command ( File('#xilinx/%s.spi' % TB),
+                   mcs,
+                   ['cd xilinx && objcopy -I ihex -O binary ${SOURCE.name} ${TARGET.name}',
+                    backup_rev
+                   ]
+                 )
+    
+    self.Alias('spi',spi)
+    return spi
+
+env.AddMethod(SPI)    
+    
+
+
+
