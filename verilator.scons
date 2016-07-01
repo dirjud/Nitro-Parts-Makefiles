@@ -4,6 +4,9 @@ Import ('env')
 mod_inc=Dir('../../lib/HostInterface/models').abspath
 
 VERILATOR_CPPFLAGS="""-I ../ -fPIC -I`python -c 'import  distutils.sysconfig; print distutils.sysconfig.get_python_inc()'` -I`python -c 'import numpy; print \"/\".join(numpy.__file__.split(\"/\")[:-1])+\"/core/include\"'` -I `python -c 'import os, nitro; print os.path.join ( os.path.split( nitro.__file__ )[0], "include" )'` -I%s""" % mod_inc
+# NOTE hack this for now because UXN1330 doesn't include it right yet
+# perhaps redo 
+VERILATOR_CPPFLAGS+=" -I%s" % Dir('../../BrooksEE/UXN1330/sim').abspath
 VERILATOR_LDFLAGS="""`python -c 'import distutils.sysconfig as x; print x.get_config_var("LIBS"), x.get_config_var("BLDLIBRARY")'` -shared -lnitro"""
 
 
@@ -27,6 +30,7 @@ def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[]  )
         v_sources + cpp_sources,
         ['verilator -Od -Wno-PINMISSING --trace --Mdir "$OBJ_DIR" --top-module $TB --cc $DEFINES $V_SOURCES --exe $CPP_SOURCES'],
          OBJ_DIR=obj_dir, TB=TB, V_SOURCES=v_sources, CPP_SOURCES=cpp_sources, DEFINES=defines )
+    env.Depends( v, 'rtl_auto' )
         
     so=Command (
         [File('#sim/V%s.so' % TB)],
@@ -37,7 +41,9 @@ def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[]  )
         OBJ_DIR=obj_dir, TB=TB, CF=VERILATOR_CPPFLAGS, LF=VERILATOR_LDFLAGS)
     
     # additional file not in sources list
-    Depends( so, '../../lib/HostInterface/models/fx3_verilator.cpp' )
+    env.Depends( so, '../../lib/HostInterface/models/fx3_verilator.cpp' )
+    env.Depends( so, v_sources + cpp_sources )
+    env.Depends( so, 'rtl_auto' )
     
     Alias('sim',so)
     return so
