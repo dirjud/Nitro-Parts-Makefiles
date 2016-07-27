@@ -10,7 +10,7 @@ VERILATOR_CPPFLAGS+=" -I%s" % Dir('../../BrooksEE/UXN1330/sim').abspath
 VERILATOR_LDFLAGS="""`python -c 'import distutils.sysconfig as x; print x.get_config_var("LIBS"), x.get_config_var("BLDLIBRARY")'` -shared -lnitro"""
 
 
-def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[]  ):
+def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[], cinc_dirs=[]  ):
     """
         @param TB module name of sim top block i.e., UXN1330_tb
         @param v_sources All the verilog sources
@@ -31,6 +31,10 @@ def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[]  )
         ['verilator -Od -Wno-PINMISSING --trace --Mdir "$OBJ_DIR" --top-module $TB --cc $DEFINES $V_SOURCES --exe $CPP_SOURCES'],
          OBJ_DIR=obj_dir, TB=TB, V_SOURCES=v_sources, CPP_SOURCES=cpp_sources, DEFINES=defines )
     env.Depends( v, 'rtl_auto' )
+
+    cdefines = [' -D%s' % d for d in v_defines]
+    cdefines = VERILATOR_CPPFLAGS + ' ' + ' '.join(cdefines)
+    cdefines += ' ' + ' '.join ( ['-I%s' % d for d in cinc_dirs] ) 
         
     so=Command (
         [File('#sim/V%s.so' % TB)],
@@ -38,7 +42,7 @@ def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[]  )
         ['make -C $OBJ_DIR -f V${TB}.mk USER_CPPFLAGS="${CF}" USER_LDFLAGS="${LF}"',
          Copy ( '$TARGET', File('#obj_dir/V%s' % TB ) )
         ],
-        OBJ_DIR=obj_dir, TB=TB, CF=VERILATOR_CPPFLAGS, LF=VERILATOR_LDFLAGS)
+        OBJ_DIR=obj_dir, TB=TB, CF=cdefines, LF=VERILATOR_LDFLAGS)
     
     # additional file not in sources list
     env.Depends( so, '../../lib/HostInterface/models/fx3_verilator.cpp' )
