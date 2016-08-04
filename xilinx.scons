@@ -1,9 +1,19 @@
-import os
+import os, shutil
 
 Import ('env')
 
 def backup_rev(target,source,env):
-    print "do backup..."
+    print "do backup...", target
+    count = 100
+    path    = str(target[0])
+    folder  = os.path.dirname(path)
+    base    = os.path.basename(path)
+    filename, ext = os.path.splitext(base)
+    def getfilename(count):
+    	return folder + os.path.sep + "rev" + os.path.sep + filename + "_rev" + str(count) + ext
+    while os.path.exists(getfilename(count)):
+        count += 1
+    shutil.copyfile(path, getfilename(count))
     
 def build_ngc_prj(target,source,env):
     #print "ngc build", target, source
