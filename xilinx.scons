@@ -51,7 +51,8 @@ def SPI(self, TB, v_sources,
               fpga_arch='spartan6',
               fpga_part='xc6slx16-csg324-2',
               spi_prom_size=524288, 
-              bitgen_deps=[], bitgen_opts='' ):
+              bitgen_deps=[], bitgen_opts='',
+              deps=[]):
     """
         @param TB Top Block Module Name
         @param v_sources: All verilog sources
@@ -72,6 +73,8 @@ def SPI(self, TB, v_sources,
                       [build_ngc_prj,
                        'cd xilinx && xst -ifn ${TB}.xst -ofn ${TB}.log'],
                       TB=TB, DEFS=defines, INC_DIRS=inc_dirs, PART=fpga_part)
+
+    env.Depends(ngc,'rtl_auto')
     
     if not len(ucf_files):
         ucf_files=[File('#xilinx/%s.ucf'%TB)]
