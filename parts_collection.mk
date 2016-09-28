@@ -1,6 +1,6 @@
 
 
-XML_PATH=parts
+XML_PATH := $(shell pwd)/parts
 
 .PHONY: default update xml py archive clean
 
@@ -22,10 +22,7 @@ update:
 xml:
 # now go through each submodule and build its xml DI file and sym link it in the $(XML_PARTS) directory
 	git submodule foreach '\
-	    make -B `basename $$path`.xml;  \
-            mkdir -p ../../../$(XML_PATH)/`basename $$(dirname $$path)`/`basename $$path`;  \
-            for x in *.xml; do ln -s ../../../$$path/$$x ../../../$(XML_PATH)/`basename $$(dirname $$path)`/`basename $$path`/ || :; done;'
-
+	    XML_PATH=$(XML_PATH) make xml || :;' 
 
 
 py: 
