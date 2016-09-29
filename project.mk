@@ -8,8 +8,9 @@
 
 MAKEFILE_DIR ?= ../../../lib/Makefiles
 XML_DIR ?= ../../../parts
-PRJ_NAME := $(shell basename `pwd`)
-PRJ_PATH := $(shell basename $$(dirname `pwd`))/$(PRJ_NAME)
+DI_FILE ?= terminals.py
+PRJ_NAME ?= $(shell basename `pwd`)
+PRJ_PATH ?= $(shell basename $$(dirname `pwd`))/$(PRJ_NAME)
 XML_INSTALL := $(XML_DIR)/$(PRJ_PATH)/$(PRJ_NAME).xml
 XML_DEPS ?=
 
@@ -67,9 +68,9 @@ else
  XML_DEPENDS=xml_deps
 endif
 # add xml_deps only if xml depends on actual other xml files
-$(XML_INSTALL): terminals.py $(XML_DEPENDS)
+$(XML_INSTALL): $(DI_FILE) $(XML_DEPENDS)
 	mkdir -p $(XML_DIR)/$(PRJ_PATH)
-	diconv terminals.py $@
+	diconv $< $@
 
 xml_deps:
 	@for dep in $(XML_DEPS); do \
