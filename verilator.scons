@@ -25,7 +25,7 @@ def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[], c
     
     obj_dir=Dir('#obj_dir').path
     
-    v=Command (
+    v=env.Command (
         [File('#obj_dir/V%s.mk' % TB)],
         v_sources + cpp_sources,
         ['verilator -Od -Wno-PINMISSING --trace --Mdir "$OBJ_DIR" --top-module $TB --cc $DEFINES $V_SOURCES --exe $CPP_SOURCES'],
