@@ -59,8 +59,8 @@ def git_update(target,source,env):
     for s in r.submodules:
         print s
         sr=s.module()
-        # print sr.git.checkout('master')
-        print sr.git.pull()
+        print sr.git.checkout(s.branch.name)
+        print sr.git.pull('--rebase')
     	print sr.git.submodule("update", "--init", "--recursive")
 
 env=Environment( ENV= os.environ,  # propogate user environment
