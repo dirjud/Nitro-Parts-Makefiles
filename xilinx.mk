@@ -107,8 +107,8 @@ fpgasim: $(FPGA_TOP)_sim.v
 	@echo "-ofmt NGC"             >> $*.xst
 	@echo "-opt_mode Speed"       >> $*.xst
 	@echo "-opt_level 1"          >> $*.xst
-#	@echo "-verilog2001 YES"      >> $*.xst
-	@echo "-keep_hierarchy NO"    >> $*.xst
+#	@echo "-verilog2001 yes"      >> $*.xst
+	@echo "-keep_hierarchy soft"  >> $*.xst
 	@echo "-p $(FPGA_PART)"       >> $*.xst
 	xst -ifn $*.xst -ofn $*.log
 
@@ -130,7 +130,7 @@ else
 endif
 
 %_map.ncd: %.ngd
-	map -p $(FPGA_PART) $(MAP_OPTS) -pr b -w -o $@ $< $*.pcf
+	map -p $(FPGA_PART) $(MAP_OPTS) -bp -pr b -w -o $@ $< $*.pcf
 
 #	map -p $(FPGA_PART) -cm area -pr b -k 4 -c 100 -o $@ $< $*.pcf
 
