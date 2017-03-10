@@ -35,8 +35,14 @@ def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[], c
     cdefines = [' -D%s' % d for d in v_defines]
     cdefines = VERILATOR_CPPFLAGS + ' ' + ' '.join(cdefines)
     cdefines += ' ' + ' '.join ( ['-I%s' % d for d in cinc_dirs] ) 
-        
-    so=Command (
+    # add any os CPPFLAGS
+    if env['ENV'].has_key('CPPFLAGS'):
+        cdefines += ' ' + env['ENV']['CPPFLAGS']
+    if env['ENV'].has_key('LDFLAGS'):
+        global VERILATOR_LDFLAGS
+        VERILATOR_LDFLAGS += ' ' + env['ENV']['LDFLAGS']
+
+    so=env.Command (
         [File('#sim/V%s.so' % TB)],
         v,
         ['make -C $OBJ_DIR -f V${TB}.mk USER_CPPFLAGS="${CF}" USER_LDFLAGS="${LF}"',
