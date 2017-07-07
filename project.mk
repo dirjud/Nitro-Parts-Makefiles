@@ -1,9 +1,9 @@
 
 # FOR XML
 # as long as terminals.py is your source and
-# the xml is named the same as the project path, 
+# the xml is named the same as the project path,
 # you shouldn't have to do anything.
-# XML_DEPS is an optional list of path/part.xml files that should 
+# XML_DEPS is an optional list of path/part.xml files that should
 # be build before the current project.
 
 MAKEFILE_DIR ?= ../../../lib/Makefiles
@@ -20,10 +20,11 @@ ISE_SIM   = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/ise_sim.mk
 VERILATOR = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/verilator.mk
 IVERILOG  = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/iverilog.mk
 VSIM      = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/vsim.mk
+VIVADO	  = $(MAKE) -C vivado   -f $(MAKEFILE_DIR)/vivado.mk
 
 CLEANEXTS = log
 
-.PHONY: fpga bit mcs error prom fpgasim clean distclean sim lint
+.PHONY: fpga bit mcs error prom fpgasim clean distclean sim lint syn
 
 error:
 	@echo "Please specify a target, e.g. make fpga, make sim"
@@ -41,6 +42,8 @@ fpga: fpga_xilinx
 prom: prom_xilinx
 
 spi: spi_xilinx
+
+syn: syn_vivado
 
 fpgasim: fpgasim_xilinx
 
@@ -61,6 +64,9 @@ fpgasim: fpgasim_xilinx
 
 %_vsim:
 	$(VSIM) $*
+
+%_vivado:
+	$(VIVADO) $*
 
 ifeq (,$(XML_DEPS))
  XML_DEPENDS=
