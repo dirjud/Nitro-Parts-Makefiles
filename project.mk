@@ -21,6 +21,7 @@ VERILATOR = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/verilator.mk
 IVERILOG  = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/iverilog.mk
 VSIM      = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/vsim.mk
 VIVADO	  = $(MAKE) -C vivado   -f $(MAKEFILE_DIR)/vivado.mk
+XSIM	  = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/xsim.mk
 
 CLEANEXTS = log
 
@@ -67,6 +68,9 @@ fpgasim: fpgasim_xilinx
 
 %_vivado:
 	$(VIVADO) $*
+
+%_xsim:
+	$(XSIM) $*
 
 ifeq (,$(XML_DEPS))
  XML_DEPENDS=

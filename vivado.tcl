@@ -9,8 +9,8 @@
 set outputDir ./work
 file mkdir $outputDir
 
-set_part xc7a35tcsg324-3
-set TOP UXN1340
+set_part $::env(PART)
+set TOP $::env(TOP)
 
 #
 # STEP#1: setup design sources and constraints
@@ -86,3 +86,5 @@ write_xdc -no_fixed_only -force $outputDir/bft_impl.xdc
 # STEP#5: generate a bitstream
 #
 write_bitstream -force $TOP.bit
+
+exit
