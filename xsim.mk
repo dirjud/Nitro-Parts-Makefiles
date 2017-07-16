@@ -63,6 +63,6 @@ vsim.tcl:
 	fi
 
 sim: xsim_files.prj
-	xelab work.isim_tests work.glbl -prj xsim_files.prj -L unisims_ver -L secureip $(LIB_ARGS) $(SIM_FLAGS) -s xsim_test -debug typical
+	xelab work.isim_tests work.glbl -prj xsim_files.prj -relax -L unisims_ver -L secureip $(LIB_ARGS) $(SIM_FLAGS) -s xsim_test -debug typical
 	xsim -g -t xsim_options.tcl -wdb xsim_database.wdb xsim_test
 
