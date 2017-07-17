@@ -41,7 +41,7 @@ INC_FILES_REL = $(patsubst %, ../%, $(INC_FILES))
 INC_PATHS_REL = $(patsubst %, ../%, $(INC_PATHS))
 
 
-SIM_FLAGS = $(patsubst %, -d %, $(SIM_DEFS)) $(patsubst %, -i %,$(INC_PATHS_REL)) -incremental
+SIM_FLAGS = $(patsubst %, -d %, $(SIM_DEFS)) $(patsubst %, -d %, $(DEFS)) $(patsubst %, -i %,$(INC_PATHS_REL)) -incremental
 LIB_ARGS  = $(patsubst %,-L %,$(SIM_LIBS)) 
 
 
@@ -62,7 +62,10 @@ vsim.tcl:
 		echo "run all" >> isim.tcl; \
 	fi
 
-sim: xsim_files.prj
+
+xsim.dir/xsim_test/xsim.dbg: xsim_files.prj
 	xelab work.isim_tests work.glbl -prj xsim_files.prj -relax -L unisims_ver -L secureip $(LIB_ARGS) $(SIM_FLAGS) -s xsim_test -debug typical
-	xsim -g -t xsim_options.tcl -wdb xsim_database.wdb xsim_test
+
+sim: xsim.dir/xsim_test/xsim.dbg
+	xsim -g --view xsim_database.wcfg -t xsim_options.tcl -wdb xsim_database.wdb xsim_test
 
