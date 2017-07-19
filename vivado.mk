@@ -59,6 +59,7 @@ $(FPGA_TOP).bit: vfiles.txt xdcfiles.txt incpaths.txt xcifiles.txt $(THISMAKEFIL
 	TOP=$(FPGA_TOP) PART=$(FPGA_PART) vivado -mode tcl -source $(THISMAKEFILE)vivado.tcl
 
 vfiles.txt: $(SYN_FILES_REL)
+	rm -rf defines.v
 	for x in $(DEFS); do echo '`define' $$x | tr '=' ' ' >> defines.v; done
 	echo defines.v > vfiles.txt
 	for f in $(SYN_FILES_REL); do \
