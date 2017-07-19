@@ -22,13 +22,16 @@ $(PID):
 	nitro -R $(FX3_FIRMWARE) -V 04b4 -P 00f3 || nitro -R $(FX3_FIRMWARE) -V $(VID) -P "*"
 
 # programs the fx3 and fx3 prom
+ifeq ($(PID), "0x1340")
 fx3:
-#	make -C $(FX3_FIRMWARE_DIR)
 	python -c 'from nitro_parts.Microchip import M24XX; \
-from nitro_parts.Cypress import fx3; \
-import logging; \
-logging.basicConfig(level=logging.INFO); \
-dev=fx3.get_dev(VID=$(VID), PID=$(PID)); \
-M24XX.program_fx3_prom(dev, "$(FX3_FIRMWARE)"); \
-'
+	from nitro_parts.Cypress import fx3; \
+	import logging; \
+	logging.basicConfig(level=logging.INFO); \
+	dev=fx3.get_dev(VID=$(VID), PID=$(PID)); \
+	M24XX.program_fx3_prom(dev, "$(FX3_FIRMWARE)");'
+else
+fx3:
+	python -c "from start import dev; dev.program_prom('$(FX3_FIRMWARE)');"
+endif
 
