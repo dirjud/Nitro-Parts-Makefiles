@@ -93,7 +93,7 @@ if {$GEN_MCS == "MCS"} {
     write_bitstream -force $TOP.pre.bit
     exec updatemem -meminfo $TOP.mmi -data $MCS_ELF -bit $TOP.pre.bit \
                 -proc MCS/mcs_0/inst/microblaze_I \
-                -out $TOP.bit
+                -out $TOP.bit -force
 
 } else {
     write bitstream -force $TOP.bit
