@@ -11,6 +11,8 @@ file mkdir $outputDir
 
 set_part $::env(PART)
 set TOP $::env(TOP)
+set GEN_MCS $::env(GEN_MCS)
+set MCS_ELF $::env(MCS_ELF)
 
 #
 # STEP#1: setup design sources and constraints
@@ -39,11 +41,11 @@ foreach xci $xcifiles {
     read_ip $xci
 }
 
-#ensure generated ip files are up to date.
-foreach ip [get_ips] {
-    generate_target {synthesis implementation} [get_files -all $ip]
-    synth_ip [get_files $ip]
-}
+##ensure generated ip files are up to date.
+#foreach ip [local_ip] {
+#    generate_target {synthesis implementation} [get_files -all $ip]
+#    synth_ip [get_files $ip]
+#}
 
 set_property include_dirs $inc_dirs [current_fileset]
 set_property XPM_LIBRARIES XPM_MEMORY [current_project]
@@ -56,6 +58,7 @@ synth_design -top $TOP -flatten rebuilt \
              -verilog_define IMAGERRX_NO_IOB=1
 
 write_checkpoint -force $outputDir/post_synth
+
 report_timing_summary -file $outputDir/post_synth_timing_summary.rpt
 
 report_power -file $outputDir/post_synth_power.rpt
@@ -85,6 +88,15 @@ write_xdc -no_fixed_only -force $outputDir/bft_impl.xdc
 #
 # STEP#5: generate a bitstream
 #
-write_bitstream -force $TOP.bit
+if {$GEN_MCS == "MCS"} {
+    write_mem_info $TOP.mmi -force
+    write_bitstream -force $TOP.pre.bit
+    exec update_mem -meminfo $TOP.mmi -data $MCS_ELF -bit $TOP.pre.bit \
+                -proc MCS/mcs_0/inst/microblaze_I \
+                -out $TOP.bit
+
+} else {
+    write bitstream -force $TOP.bit
+}
 
 exit

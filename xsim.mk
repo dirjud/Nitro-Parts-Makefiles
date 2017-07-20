@@ -36,6 +36,7 @@
 
 # Add relative path to all files and paths
 SIM_FILES_REL = $(patsubst %, ../%, $(SIM_FILES)) $(patsubst %, ../%, $(XSIM_FILES))
+SIM_VHDL_REL  = $(patsubst %, ../%, $(XSIM_VHDL))
 SYN_FILES_REL = $(patsubst %, ../%, $(SYN_FILES))
 INC_FILES_REL = $(patsubst %, ../%, $(INC_FILES))
 INC_PATHS_REL = $(patsubst %, ../%, $(INC_PATHS))
@@ -50,9 +51,11 @@ LIB_ARGS  = $(patsubst %,-L %,$(SIM_LIBS))
 
 # This target creates the project file for simulation
 xsim_files.prj: $(SIM_FILES_REL) $(SYN_FILES_REL) $(INC_FILES_REL)
-	rm -rf xsim_files.prj 
-	for x in $(SIM_FILES_REL) $(SYN_FILES_REL) $(ISE_SIM_FILES_REL); do echo verilog work $$x >> xsim_files.prj; done
-	echo verilog work $$XILINX_VIVADO/data/verilog/src/glbl.v >> xsim_files.prj
+	@echo "Sim files: $(SIM_FILES)"
+	@rm -rf xsim_files.prj 
+	@for x in $(SIM_FILES_REL) $(SYN_FILES_REL) $(ISE_SIM_FILES_REL); do echo verilog work $$x >> xsim_files.prj; done
+	@for x in $(SIM_VHDL_REL); do echo vhdl work $$x >> xsim_files.prj; done
+	@echo verilog work $$XILINX_VIVADO/data/verilog/src/glbl.v >> xsim_files.prj
 
 vsim.tcl:
 	if [ -e isim.tcl ]; then \
