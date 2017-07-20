@@ -96,7 +96,7 @@ if {$GEN_MCS == "MCS"} {
                 -out $TOP.bit -force
 
 } else {
-    write bitstream -force $TOP.bit
+    write_bitstream -force $TOP.bit
 }
 
 exit
