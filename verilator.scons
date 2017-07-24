@@ -1,0 +1,63 @@
+import os
+Import ('env')
+
+mod_inc=Dir('../../lib/HostInterface/models').abspath
+
+VERILATOR_CPPFLAGS="""-I ../ -fPIC -I`python -c 'import  distutils.sysconfig; print distutils.sysconfig.get_python_inc()'` -I`python -c 'import numpy; print \"/\".join(numpy.__file__.split(\"/\")[:-1])+\"/core/include\"'` -I `python -c 'import os, nitro; print os.path.join ( os.path.split( nitro.__file__ )[0], "include" )'` -I%s""" % mod_inc
+# NOTE hack this for now because UXN1330 doesn't include it right yet
+# perhaps redo 
+VERILATOR_CPPFLAGS+=" -I%s" % Dir('../../BrooksEE/UXN1330/sim').abspath
+VERILATOR_LDFLAGS="""`python -c 'import distutils.sysconfig as x; print x.get_config_var("LIBS"), x.get_config_var("BLDLIBRARY")'` -shared -lnitro"""
+
+
+def Verilator(self, TB, v_sources, cpp_sources, v_defines=[], include_dirs=[], cinc_dirs=[]  ):
+    """
+        @param TB module name of sim top block i.e., UXN1330_tb
+        @param v_sources All the verilog sources
+        @param cpp_sources Any cpp sources for the verilator prg
+        @param v_defines Verilog definitions
+        @param include_dirs List of directories to search for included v files.
+    """
+    
+    defines = [ '+define+%s' % d for d in v_defines ]
+    defines += ['+incdir+%s' % i for i in include_dirs]
+    defines.append ( '+libext+.v' )
+    
+    obj_dir=Dir('#obj_dir').path
+    
+    v=env.Command (
+        [File('#obj_dir/V%s.mk' % TB)],
+        v_sources + cpp_sources,
+        ['verilator -Od -Wno-PINMISSING --trace --Mdir "$OBJ_DIR" --top-module $TB --cc $DEFINES $V_SOURCES --exe $CPP_SOURCES'],
+         OBJ_DIR=obj_dir, TB=TB, V_SOURCES=v_sources, CPP_SOURCES=cpp_sources, DEFINES=defines )
+    env.Depends( v, 'rtl_auto' )
+
+    cdefines = [' -D%s' % d for d in v_defines]
+    cdefines = VERILATOR_CPPFLAGS + ' ' + ' '.join(cdefines)
+    cdefines += ' ' + ' '.join ( ['-I%s' % d for d in cinc_dirs] ) 
+    # add any os CPPFLAGS
+    if env['ENV'].has_key('CPPFLAGS'):
+        cdefines += ' ' + env['ENV']['CPPFLAGS']
+    if env['ENV'].has_key('LDFLAGS'):
+        global VERILATOR_LDFLAGS
+        VERILATOR_LDFLAGS += ' ' + env['ENV']['LDFLAGS']
+
+    so=env.Command (
+        [File('#sim/V%s.so' % TB)],
+        v,
+        ['make -C $OBJ_DIR -f V${TB}.mk USER_CPPFLAGS="${CF}" USER_LDFLAGS="${LF}"',
+         Copy ( '$TARGET', File('#obj_dir/V%s' % TB ) )
+        ],
+        OBJ_DIR=obj_dir, TB=TB, CF=cdefines, LF=VERILATOR_LDFLAGS)
+    
+    # additional file not in sources list
+    env.Depends( so, '../../lib/HostInterface/models/fx3_verilator.cpp' )
+    env.Depends( so, v_sources + cpp_sources )
+    env.Depends( so, 'rtl_auto' )
+    
+    Alias('sim',so)
+    return so
+
+env.AddMethod(Verilator)
+    
+

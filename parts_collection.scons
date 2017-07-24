@@ -1,0 +1,116 @@
+
+
+
+# import test 
+import git, os, types
+
+install_xmls=[] 
+install_pys=[]
+
+# NOTE this is always in src/lib/Makefiles right?
+# so hard coding the path here makes it so you should
+# be able to include this SConscript from wherever
+parts_dir=os.path.join(Dir('../../../').path, 'parts')
+py_dir=os.path.join(Dir('../../../').path, 'py')
+
+
+# builder if you need to generate xml file
+diconv=Builder( action='diconv $SOURCE $TARGET' )
+# DI dependencies
+def DIDepends ( self, dst, di ):
+    """
+        dst is an xml file
+        di is a nitro part xml file in the parts
+           dir that must be generated before dst.
+    """
+    self.Depends( dst, os.path.join ( parts_dir, di ) )
+
+# builder to install an xml file
+def Xml (self, di ):
+    """
+        di xml file to install in the parts repo
+    """
+    ins=self.Install(   
+        os.path.join(parts_dir, self['SUBMODULE']),
+        di )
+    install_xmls.append(ins)
+    return ins
+
+def Py (self, prefix, glob ):
+    """
+        @param prefix nitro_parts package (without the nitro_parts) e.g., BooksEE/UXN1230
+        @param glob files to be included in package prefix
+    """
+    ins=self.Install( 
+        os.path.join(py_dir, 'nitro_parts', prefix),
+        glob )
+    install_pys.append(ins)
+    return ins
+
+r=git.Repo(Dir('../../..').path)
+
+def git_update(target,source,env):
+    """
+        Function to update all submodules
+    """
+
+    #r.git.checkout('master')
+    r.git.pull()
+    for s in r.submodules:
+        print s
+        sr=s.module()
+        print sr.git.checkout(s.branch.name)
+        print sr.git.pull('--rebase')
+    	print sr.git.submodule("update", "--init", "--recursive")
+
+env=Environment( ENV= os.environ,  # propogate user environment
+                 BUILDERS = {'Diconv':diconv}
+               )
+
+# Ensure running this part config from other 
+# locations doesn't cause losing the build deps
+env.SConsignFile ( File('../../../.sconsign.dblite').abspath )
+ 
+env.AddMethod(DIDepends) 
+env.AddMethod(Xml)
+env.AddMethod(Py)
+
+p=env.Command ('pull',None,git_update )
+env.Pseudo(p)
+env.Alias('pull',p)
+
+
+for s in r.submodules:
+    path=os.path.join(Dir('../../..').path, s.name,'part.scons')
+    if os.path.isfile(path):
+        print "Considering submodule: %s" % s.name
+        env.Replace(SUBMODULE=os.path.sep.join(s.name.split('/')[1:]))
+        SConscript ( path, exports='env' )
+        
+parts=env.Alias('parts', install_xmls)
+
+# nitro_parts __init__.py files
+
+root_init=env.Command( 
+    os.path.join ( py_dir, 'nitro_parts', '__init__.py' ),
+    None,
+    [ Touch ( '$TARGET' ) ] )
+
+def touch( t ):
+    open(t,'w+')
+    
+def py_init(target,source,env):
+    for fn in os.listdir( os.path.join( py_dir, 'nitro_parts' ) ):
+        test = os.path.join ( py_dir, 'nitro_parts', fn )
+        if os.path.isdir( test ):
+            touch ( os.path.join ( test, '__init__.py' ) )
+PyInit=Action(py_init)
+              
+py=env.Alias('py', install_pys + root_init)
+env.AlwaysBuild(root_init)
+env.AddPostAction( root_init, PyInit )
+
+env.Default(['py','parts'])
+
+    
+Return(('py','parts'))
