@@ -90,13 +90,7 @@ write_xdc -no_fixed_only -force $outputDir/bft_impl.xdc
 #
 if {$GEN_MCS == "MCS"} {
     write_mem_info $TOP.mmi -force
-    write_bitstream -force $TOP.pre.bit
-    exec updatemem -meminfo $TOP.mmi -data $MCS_ELF -bit $TOP.pre.bit \
-                -proc MCS/mcs_0/inst/microblaze_I \
-                -out $TOP.bit -force
-
-} else {
-    write_bitstream -force $TOP.bit
 }
+write_bitstream -force $TOP.pre.bit
 
 exit
