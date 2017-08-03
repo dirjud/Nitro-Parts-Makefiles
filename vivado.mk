@@ -59,13 +59,11 @@ $(FPGA_TOP).bin: $(FPGA_TOP).bit $(THISMAKEFILE)vivado_prom.tcl
 	TOP=$(FPGA_TOP) PROM_SIZE=$(SPI_PROM_SIZE) PROM_INTERFACE=$(SPI_PROM_INTERFACE) vivado -mode tcl -source $(THISMAKEFILE)vivado_prom.tcl
 
 $(FPGA_TOP).bit: $(FPGA_TOP).pre.bit $(MCS_ELF_REL)
+ifneq (, $(findstring MCS, $(DEFS)))
 	updatemem -meminfo $(FPGA_TOP).mmi -data $(MCS_ELF_REL) -bit $(FPGA_TOP).pre.bit -proc MCS/mcs_0/inst/microblaze_I -out $(FPGA_TOP).bit -force
-
-#TODO: copy pre.bit to .bit when no MCS
-
-
-#	GEN_MCS=$(GEN_MCS) MCS_ELF= TOP=$(FPGA_TOP) PART=$(FPGA_PART) vivado -mode tcl -source $(THISMAKEFILE)vivado.tcl
-
+else
+	cp $(FPGA_TOP).pre.bit $(FPGA_TOP).bit
+endif
 
 $(FPGA_TOP).pre.bit: vfiles.txt xdcfiles.txt incpaths.txt xcifiles.txt $(THISMAKEFILE)vivado.tcl
 	GEN_MCS=$(GEN_MCS) MCS_ELF=$(MCS_ELF_REL) TOP=$(FPGA_TOP) PART=$(FPGA_PART) vivado -mode tcl -source $(THISMAKEFILE)vivado.tcl
