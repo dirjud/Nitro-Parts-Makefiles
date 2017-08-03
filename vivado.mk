@@ -46,6 +46,7 @@ THISMAKEFILE = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 SYN_FILES_REL = $(patsubst %, ../%, $(SYN_FILES))
 XDC_FILES_REL = $(patsubst %, ../%, $(XDC_FILES))
 INC_PATHS_REL = $(patsubst %, ../%, $(INC_PATHS))
+INC_FILES_REL = $(patsubst %, ../%, $(INC_FILES))
 XCI_FILES_REL = $(patsubst %, ../%, $(XCI_FILES))
 MCS_ELF_REL = $(strip $(patsubst %, ../%, $(MCS_ELF)))
 
@@ -68,7 +69,7 @@ endif
 $(FPGA_TOP).pre.bit: vfiles.txt xdcfiles.txt incpaths.txt xcifiles.txt $(THISMAKEFILE)vivado.tcl
 	GEN_MCS=$(GEN_MCS) MCS_ELF=$(MCS_ELF_REL) TOP=$(FPGA_TOP) PART=$(FPGA_PART) vivado -mode tcl -source $(THISMAKEFILE)vivado.tcl
 
-vfiles.txt: $(SYN_FILES_REL)
+vfiles.txt: $(SYN_FILES_REL) $(INC_FILES_REL)
 	rm -rf defines.v
 	for x in $(DEFS); do echo '`define' $$x | tr '=' ' ' >> defines.v; done
 	echo defines.v > vfiles.txt
@@ -92,9 +93,3 @@ xcifiles.txt: $(XCI_FILES_REL)
 	touch xcifiles.txt
 	for x in $(XCI_FILES_REL); do \
 	 echo $$x >> xcifiles.txt; done
-
-
-../rtl_auto/rtl_version.v: 
-	mkdir -p ../rtl_auto
-	$(DI) -o ../rtl_auto -v all $<
-
