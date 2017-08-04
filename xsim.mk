@@ -25,8 +25,8 @@
 #   SIM_LIBS  = /opt/xilinx/ise/verilog/unisyms
 #   SIM_DEFS  = GATES ASYNC_RESET
 #   VSIM_ARGS  = testIO
-#   VSIM_FILES = 
-############################################################################# 
+#   VSIM_FILES =
+#############################################################################
 # This file gets called in the sim directory
 #
 
@@ -42,20 +42,25 @@ INC_FILES_REL = $(patsubst %, ../%, $(INC_FILES))
 INC_PATHS_REL = $(patsubst %, ../%, $(INC_PATHS))
 
 
-SIM_FLAGS = $(patsubst %, -d %, $(SIM_DEFS)) $(patsubst %, -d %, $(DEFS)) $(patsubst %, -i %,$(INC_PATHS_REL)) -incremental
-LIB_ARGS  = $(patsubst %,-L %,$(SIM_LIBS)) 
+SIM_FLAGS = $(patsubst %, -d %, $(SIM_DEFS)) $(patsubst %, -d %, $(DEFS)) $(patsubst %, -i %,$(INC_PATHS_REL))
+LIB_ARGS  = $(patsubst %,-L %,$(SIM_LIBS))
 
+VIVADO ?= /opt/Xilinx/Vivado/2017.2
 
-.PHONY: sim
+.PHONY: sim genmem
 
 
 # This target creates the project file for simulation
-xsim_files.prj: $(SIM_FILES_REL) $(SYN_FILES_REL) $(INC_FILES_REL)
-	@echo "Sim files: $(SIM_FILES)"
-	@rm -rf xsim_files.prj 
-	@for x in $(SIM_FILES_REL) $(SYN_FILES_REL) $(ISE_SIM_FILES_REL); do echo verilog work $$x >> xsim_files.prj; done
-	@for x in $(SIM_VHDL_REL); do echo vhdl work $$x >> xsim_files.prj; done
-	@echo verilog work $$XILINX_VIVADO/data/verilog/src/glbl.v >> xsim_files.prj
+xsim_vlog_files.prj: $(SIM_FILES_REL) $(SYN_FILES_REL) $(INC_FILES_REL)
+	@rm -rf $@
+	@for x in $(SIM_FILES_REL) $(SYN_FILES_REL) $(ISE_SIM_FILES_REL); do echo verilog work $$x >> $@; done
+	@echo verilog work $$XILINX_VIVADO/data/verilog/src/glbl.v >> $@
+	@echo "nosort" >> $@
+
+xsim_vhdl_files.prj: $(SIM_VHDL_REL) $(INC_FILES_REL)
+	@rm -rf $@
+	@for x in $(SIM_VHDL_REL); do echo vhdl work "$$x" >> $@; done
+	echo "nosort" >> $@
 
 vsim.tcl:
 	if [ -e isim.tcl ]; then \
@@ -66,9 +71,14 @@ vsim.tcl:
 	fi
 
 
-xsim.dir/xsim_test/xsim.dbg: xsim_files.prj
-	xelab work.isim_tests work.glbl -prj xsim_files.prj -relax -L unisims_ver -L secureip $(LIB_ARGS) $(SIM_FLAGS) -s xsim_test -debug typical
+xsim.dir/xsim_test/xsim.dbg: xsim_vlog_files.prj xsim_vhdl_files.prj xsim.ini
+	xvlog -m64 --relax --prj xsim_vlog_files.prj $(SIM_FLAGS)
+	xvhdl -m64 --relax --prj xsim_vhdl_files.prj
+	xelab work.isim_tests work.glbl -m64 -relax -L unisims_ver -L secureip $(LIB_ARGS) -s xsim_test -debug typical
 
-sim: xsim.dir/xsim_test/xsim.dbg
+
+xsim.ini: $(VIVADO)/data/xsim/ip/xsim_ip.ini
+	cp $< $@
+
+sim: xsim.dir/xsim_test/xsim.dbg $(SIM_DEPS)
 	xsim -g --view xsim_database.wcfg -t xsim_options.tcl -wdb xsim_database.wdb xsim_test
-
