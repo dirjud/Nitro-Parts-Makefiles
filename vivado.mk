@@ -57,7 +57,7 @@ GEN_MCS = $(findstring MCS, $(DEFS))
 syn: $(FPGA_TOP).bin
 
 $(FPGA_TOP).bin: $(FPGA_TOP).bit $(THISMAKEFILE)vivado_prom.tcl
-	TOP=$(FPGA_TOP) PROM_SIZE=$(SPI_PROM_SIZE) PROM_INTERFACE=$(SPI_PROM_INTERFACE) vivado -mode tcl -source $(THISMAKEFILE)vivado_prom.tcl
+	TOP=$(FPGA_TOP) PROM_SIZE=$(SPI_PROM_SIZE) PROM_INTERFACE=$(SPI_PROM_INTERFACE) RTL_FILENAME=$(RTL_FILENAME) vivado -mode tcl -source $(THISMAKEFILE)vivado_prom.tcl
 
 $(FPGA_TOP).bit: $(FPGA_TOP).pre.bit $(MCS_ELF_REL)
 ifneq (, $(findstring MCS, $(DEFS)))
@@ -93,3 +93,9 @@ xcifiles.txt: $(XCI_FILES_REL)
 	touch xcifiles.txt
 	for x in $(XCI_FILES_REL); do \
 	 echo $$x >> xcifiles.txt; done
+
+version_build:
+	echo $(RTL_VERSION_BUILD)
+
+rtl_filename:
+	echo $(RTL_FILENAME)
