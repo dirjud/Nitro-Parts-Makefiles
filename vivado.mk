@@ -70,28 +70,28 @@ $(FPGA_TOP).pre.bit: vfiles.txt xdcfiles.txt incpaths.txt xcifiles.txt $(THISMAK
 	GEN_MCS=$(GEN_MCS) MCS_ELF=$(MCS_ELF_REL) TOP=$(FPGA_TOP) PART=$(FPGA_PART) vivado -mode tcl -source $(THISMAKEFILE)vivado.tcl
 
 vfiles.txt: $(SYN_FILES_REL) $(INC_FILES_REL)
-	rm -rf defines.v
-	for x in $(DEFS); do echo '`define' $$x | tr '=' ' ' >> defines.v; done
-	echo defines.v > vfiles.txt
-	for f in $(SYN_FILES_REL); do \
+	@rm -rf defines.v
+	@for x in $(DEFS); do echo '`define' $$x | tr '=' ' ' >> defines.v; done
+	@echo defines.v > vfiles.txt
+	@for f in $(SYN_FILES_REL); do \
 	 echo $$f >> vfiles.txt; done
 
 xdcfiles.txt: $(XDC_FILES_REF)
-	rm -f xdcfiles.txt
-	touch xdcfiles.txt
-	for f in $(XDC_FILES_REL); do \
+	@rm -f xdcfiles.txt
+	@touch xdcfiles.txt
+	@for f in $(XDC_FILES_REL); do \
 	 echo $$f >> xdcfiles.txt; done
 
 incpaths.txt: $(INC_PATHS_REF)
-	rm -f incpaths.txt
-	touch incpaths.txt
-	for d in $(INC_PATHS_REL); do \
+	@rm -f incpaths.txt
+	@touch incpaths.txt
+	@for d in $(INC_PATHS_REL); do \
 	 echo $$d >> incpaths.txt; done
 
 xcifiles.txt: $(XCI_FILES_REL)
-	rm -f xcifiles.txt
-	touch xcifiles.txt
-	for x in $(XCI_FILES_REL); do \
+	@rm -f xcifiles.txt
+	@touch xcifiles.txt
+	@for x in $(XCI_FILES_REL); do \
 	 echo $$x >> xcifiles.txt; done
 
 version_build:
