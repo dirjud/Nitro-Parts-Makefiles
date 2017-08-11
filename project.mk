@@ -13,6 +13,7 @@ PRJ_NAME ?= $(shell basename `pwd`)
 PRJ_PATH ?= $(shell basename $$(dirname `pwd`))/$(PRJ_NAME)
 XML_INSTALL := $(XML_DIR)/$(PRJ_PATH)/$(PRJ_NAME).xml
 XML_DEPS ?=
+XML_DEPS_REL = $(patsubst %, $(XML_DIR)/%, $(XML_DEPS))
 
 FPGA      = $(MAKE) -C xilinx   -f $(MAKEFILE_DIR)/xilinx.mk
 NCSIM     = $(MAKE) -C sim      -f $(MAKEFILE_DIR)/ncsim.mk
@@ -72,23 +73,19 @@ fpgasim: fpgasim_xilinx
 %_xsim:
 	$(XSIM) $*
 
-ifeq (,$(XML_DEPS))
- XML_DEPENDS=
-else
- XML_DEPENDS=xml_deps
-endif
-# add xml_deps only if xml depends on actual other xml files
-$(XML_INSTALL): $(DI_FILE) $(XML_DEPENDS)
-	mkdir -p $(XML_DIR)/$(PRJ_PATH)
+.PHONY: xml xml_deps
+
+$(XML_INSTALL): $(DI_FILE) $(XML_DEPS_REL)
+	@mkdir -p $(XML_DIR)/$(PRJ_PATH)
 	diconv $< $@
+
 
 xml_deps:
 	@for dep in $(XML_DEPS); do \
 	 make -C ../../`dirname $$dep` xml; \
 	done
 
-xml: $(XML_INSTALL)
-.PHONY: xml xml_deps
+xml: xml_deps $(XML_INSTALL)
 
 
 mostlyclean:
