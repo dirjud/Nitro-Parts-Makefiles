@@ -2,7 +2,7 @@
 
 XML_PATH := $(shell pwd)/parts
 
-.PHONY: default update xml py archive clean
+.PHONY: default update xml py archive pull clean
 
 default: update xml py
 
@@ -11,7 +11,7 @@ update:
 	git pull
 
 # update all submodules
-	git submodule update --init 
+	git submodule update --init
 
 # now go through each submodule and update its submodules
 	git submodule foreach git submodule update --init \; git submodule foreach git submodule update --init
@@ -22,10 +22,10 @@ update:
 xml:
 # now go through each submodule and build its xml DI file and sym link it in the $(XML_PARTS) directory
 	git submodule foreach '\
-	    XML_PATH=$(XML_PATH) make xml || :;' 
+	    XML_PATH=$(XML_PATH) make xml || :;'
 
 
-py: 
+py:
 # now go through each submodule and symlink its py directory to the python parts library.
 	mkdir -p py/nitro_parts
 	touch py/nitro_parts/__init__.py
@@ -41,19 +41,11 @@ status:
 	git submodule foreach 'git status | grep Changed || :; git submodule foreach "git status | grep Changed || :"'
 
 pull:
-	git pull && \
-	git submodule foreach 'git checkout master; git pull'
-#	while read part; do \
-#          pushd $$part; \
-#	  git checkout master; \
-#	  git pull; \
-#	  popd; \
-#	done < "PARTS"
-
-
-#; git checkout master; git pull; done
-
-
+	@git pull
+	@git submodule --quiet foreach 'git status | grep -q modified && \
+			   { echo "$$name has modified content. Commit or stash before make pull."; echo "X"; } || \
+			   :' | grep -v X && exit 1 || echo "Submodules unmodified"
+	@git submodule update --remote --recursive --rebase
 
 clean:
 	rm -rf $(XML_PATH)
@@ -61,14 +53,14 @@ clean:
            if [ -d $$x ]; then \
 		rm -rf $$x; \
            fi \
-        done 
+        done
 	git submodule foreach 'make clean || :'
 
 #ver ?= $(shell python -c "import os, commands; words=open('nitro_parts.spec','r').read().split(); print words[words.index('Version:')+1] except: import commands; commands.getoutput('git rev-parse HEAD')[:10]')")
 
 ver ?= $(shell python -c "`printf "import os, commands\nif os.path.exists('nitro_parts.spec'): words=open('nitro_parts.spec','r').read().split(); print words[words.index('Version:')+1]\nelse: print 'git' + commands.getoutput('git rev-parse HEAD')[:6]"`")
 
-archive: 
+archive:
 # create an archive of the built xml files and python files for rpm
 # use 'make archive ver=xxx' for a specific version
 #	$(MAKE) py
