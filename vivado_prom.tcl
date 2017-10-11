@@ -11,6 +11,7 @@ if { $::env(RTL_FILENAME) == "" } {
     }
     file copy $TOP.bin rev/${TOP}_rev$rev.bin
 } else {
+    file mkdir rev
     file copy $TOP.bin $::env(RTL_FILENAME)
 }
 
