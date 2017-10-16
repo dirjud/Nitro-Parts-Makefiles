@@ -45,7 +45,7 @@ INC_PATHS_REL = $(patsubst %, ../%, $(INC_PATHS))
 SIM_FLAGS = $(patsubst %, -d %, $(SIM_DEFS)) $(patsubst %, -d %, $(DEFS)) $(patsubst %, -i %,$(INC_PATHS_REL))
 LIB_ARGS  = $(patsubst %,-L %,$(SIM_LIBS))
 
-VIVADO ?= /opt/Xilinx/Vivado/2017.2
+VIVADO ?= /opt/Xilinx/Vivado/2017.3
 
 .PHONY: sim genmem
 
