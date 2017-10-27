@@ -44,7 +44,7 @@ pull:
 	@git pull
 	@git submodule --quiet foreach 'git status | grep -q modified && \
 			   { echo "$$name has modified content. Commit or stash before make pull."; echo "X"; } || \
-			   :' | grep -v X && exit 1 || echo "Submodules unmodified"
+			   :' | egrep -v "^X$$" && exit 1 || echo "Submodules unmodified"
 	@git submodule update --remote --recursive --rebase
 
 clean:
