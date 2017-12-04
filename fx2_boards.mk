@@ -9,7 +9,7 @@ VID ?= 0x1fe1
 #PID=
 FX2_FIRMWARE_DIR ?=../firmware
 #SPI_FILE = ../xilinx/UXN1230.spi
-
+SAVE_SPI ?= firmware.bin
 
 FX2_FIRMWARE = $(FX2_FIRMWARE_DIR)/build/firmware.ihx
 
@@ -34,6 +34,9 @@ CY7C68013.program_fx2(dev, "$(FX2_FIRMWARE)"); \
 
 spi:
 	python -c 'import $(PY_CLASS),logging; logging.basicConfig(level=logging.INFO); dev=$(PY_CLASS).get_dev(); dev.program_fpga_prom("$(SPI_FILE)")'
+
+save_spi:
+	python -c 'import $(PY_CLASS),logging; logging.basicConfig(level=logging.INFO); dev=$(PY_CLASS).get_dev(); dev.save_fpga_prom("$(SAVE_SPI)"); print("FPGA Firmware saved to $(SAVE_SPI)")'
 
 fpga:
 	python -c 'import $(PY_CLASS),logging; logging.basicConfig(level=logging.INFO); dev=$(PY_CLASS).get_dev(); dev.program_fpga("$(patsubst %.spi,%.bit,$(SPI_FILE))")'
