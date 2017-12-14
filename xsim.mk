@@ -53,12 +53,21 @@ VIVADO ?= /opt/Xilinx/Vivado/2017.3
 # This target creates the project file for simulation
 xsim_vlog_files.prj: $(SIM_FILES_REL) $(SYN_FILES_REL) $(INC_FILES_REL)
 	@rm -rf $@
-	@for x in $(SIM_FILES_REL) $(SYN_FILES_REL) $(ISE_SIM_FILES_REL); do echo verilog work $$x >> $@; done
+	@for x in $(SIM_FILES_REL) $(SYN_FILES_REL) $(ISE_SIM_FILES_REL); do \
+	  if [[ "$$x" != *".vhd" ]]; then \
+	    echo verilog work $$x >> $@; \
+	  fi \
+	done
 	@echo verilog work $$XILINX_VIVADO/data/verilog/src/glbl.v >> $@
 	@echo "nosort" >> $@
 
 xsim_vhdl_files.prj: $(SIM_VHDL_REL) $(INC_FILES_REL)
 	@rm -rf $@
+	@for x in $(SIM_FILES_REL) $(SYN_FILES_REL) $(ISE_SIM_FILES_REL); do \
+	  if [[ "$$x" == *".vhd" ]]; then \
+	    echo vhdl work $$x >> $@; \
+	  fi \
+	done
 	@for x in $(SIM_VHDL_REL); do echo vhdl work "$$x" >> $@; done
 	echo "nosort" >> $@
 

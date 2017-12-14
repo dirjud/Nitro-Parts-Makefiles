@@ -52,9 +52,11 @@ MCS_ELF_REL = $(strip $(patsubst %, ../%, $(MCS_ELF)))
 
 GEN_MCS = $(findstring MCS, $(DEFS))
 
-.PHONY: syn
+.PHONY: syn prj
 
 syn: $(FPGA_TOP).bin
+
+prj: $(FPGA_TOP).prj
 
 $(FPGA_TOP).bin: $(FPGA_TOP).bit $(THISMAKEFILE)vivado_prom.tcl
 	TOP=$(FPGA_TOP) PROM_SIZE=$(SPI_PROM_SIZE) PROM_INTERFACE=$(SPI_PROM_INTERFACE) RTL_FILENAME=$(RTL_FILENAME) vivado -mode tcl -source $(THISMAKEFILE)vivado_prom.tcl
@@ -99,3 +101,6 @@ version_build:
 
 rtl_filename:
 	echo $(RTL_FILENAME)
+
+$(FPGA_TOP).prj: vfiles.txt xdcfiles.txt incpaths.txt xcifiles.txt $(THISMAKEFILE)vivado_prj.tcl
+	PART=$(FPGA_PART) TOP=$(FPGA_TOP) vivado -mode tcl -source $(THISMAKEFILE)vivado_prj.tcl

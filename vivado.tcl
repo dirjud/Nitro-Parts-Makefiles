@@ -6,6 +6,7 @@
 #
 # STEP#0: define output directory area.
 #
+
 set outputDir ./work
 file mkdir $outputDir
 
@@ -21,7 +22,11 @@ set MCS_ELF $::env(MCS_ELF)
 #verilog
 set vfiles [read [open "vfiles.txt" r]]
 foreach v $vfiles {
-    read_verilog $v
+    if [string match "*\.vhd" $v] {
+       read_vhdl $v
+    } else {
+       read_verilog $v
+    }
 }
 
 # constraints
