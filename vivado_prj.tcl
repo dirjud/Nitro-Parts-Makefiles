@@ -24,3 +24,6 @@ add_files $xcifiles
 
 set_property include_dirs $inc_dirs [current_fileset]
 set_property XPM_LIBRARIES XPM_MEMORY [current_project]
+
+#save_project_as vivado/$::env(PART).xpr
+start_gui
