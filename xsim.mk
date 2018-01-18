@@ -45,8 +45,6 @@ INC_PATHS_REL = $(patsubst %, ../%, $(INC_PATHS))
 SIM_FLAGS = $(patsubst %, -d %, $(SIM_DEFS)) $(patsubst %, -d %, $(DEFS)) $(patsubst %, -i %,$(INC_PATHS_REL))
 LIB_ARGS  = $(patsubst %,-L %,$(SIM_LIBS))
 
-VIVADO ?= /opt/Xilinx/Vivado/2017.3
-
 .PHONY: sim genmem
 
 
@@ -86,7 +84,7 @@ xsim.dir/xsim_test/xsim.dbg: xsim_vlog_files.prj xsim_vhdl_files.prj xsim.ini
 	xelab work.isim_tests work.glbl -m64 -relax -L unisims_ver -L secureip $(LIB_ARGS) -s xsim_test -debug typical
 
 
-xsim.ini: $(VIVADO)/data/xsim/ip/xsim_ip.ini
+xsim.ini: $(XILINX_VIVADO)/data/xsim/ip/xsim_ip.ini
 	cp $< $@
 
 sim: xsim.dir/xsim_test/xsim.dbg $(SIM_DEPS)
