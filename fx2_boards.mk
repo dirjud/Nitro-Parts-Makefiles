@@ -45,8 +45,7 @@ fpga:
 shell:
 	if [ ! -e start.py ]; then \
 	    echo "import $(PY_CLASS), logging" > start.py; \
-	    echo "log = logging.getLogger(__name__)" >> start.py; \
 	    echo "logging.basicConfig(level=logging.INFO)" >> start.py; \
-	    echo 'dev = self = $(PY_CLASS).get_dev()' >> start.py; \
+	    echo 'dev = $(PY_CLASS).get_dev()' >> start.py; \
 	fi
 	ipython -i start.py
