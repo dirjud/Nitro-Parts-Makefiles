@@ -1,10 +1,10 @@
-import sys, commands, os
+import sys, subprocess, os
 
 base = sys.argv[1]
 major, minor, feature, build = [int(x) for x in sys.argv[2:6]]
 
-sha = commands.getoutput("git -C ../.. rev-parse --verify HEAD")
-dirty = bool(commands.getoutput("git -C ../.. status --porcelain"))
+sha = subprocess.getoutput("git -C ../.. rev-parse --verify HEAD")
+dirty = bool(subprocess.getoutput("git -C ../.. status --porcelain"))
 
 filename = "%s_%02x.%02x.%02x.XX-%s%s.bin"  %(base, major, minor, feature, sha[:10], "-dirty" if dirty else "")
 
@@ -18,7 +18,7 @@ while True:
         break
 
 if sys.argv[6] == "filename":
-    print fname
+    print(fname)
 else:
-    print build
+    print(build)
     
