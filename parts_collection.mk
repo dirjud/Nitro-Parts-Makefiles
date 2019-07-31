@@ -58,7 +58,7 @@ clean:
 
 #ver ?= $(shell python -c "import os, commands; words=open('nitro_parts.spec','r').read().split(); print words[words.index('Version:')+1] except: import commands; commands.getoutput('git rev-parse HEAD')[:10]')")
 
-ver ?= $(shell python -c "`printf "import os, commands\nif os.path.exists('nitro_parts.spec'): words=open('nitro_parts.spec','r').read().split(); print words[words.index('Version:')+1]\nelse: print 'git' + commands.getoutput('git rev-parse HEAD')[:6]"`")
+ver ?= $(shell python -c "`printf "import os, subprocess\nif os.path.exists('nitro_parts.spec'): words=open('nitro_parts.spec','r').read().split(); print(words[words.index('Version:')+1])\nelse: print('git' + subprocess.getoutput('git rev-parse HEAD')[:6])"`")
 
 archive:
 # create an archive of the built xml files and python files for rpm
